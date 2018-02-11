@@ -48,13 +48,10 @@
             this.TypeBox = new System.Windows.Forms.RichTextBox();
             this.SendNormal = new System.Windows.Forms.Button();
             this.ChatHistory = new System.Windows.Forms.ListBox();
-            this.WaitingPanel = new System.Windows.Forms.Panel();
-            this.label4 = new System.Windows.Forms.Label();
             this.ServerOrClient.SuspendLayout();
             this.StartServerPanel.SuspendLayout();
             this.StartClientPanel.SuspendLayout();
             this.ChatPanel.SuspendLayout();
-            this.WaitingPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // ServerOrClient
@@ -136,7 +133,7 @@
             this.ServerPort.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.ServerPort.Size = new System.Drawing.Size(145, 42);
             this.ServerPort.TabIndex = 0;
-            this.ServerPort.Text = "23";
+            this.ServerPort.Text = "";
             this.ServerPort.KeyDown += new System.Windows.Forms.KeyEventHandler(this.EnterPressedServerPort);
             // 
             // StartClientPanel
@@ -173,7 +170,7 @@
             this.ipbox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.ipbox.Size = new System.Drawing.Size(227, 29);
             this.ipbox.TabIndex = 2;
-            this.ipbox.Text = "127.0.0.1";
+            this.ipbox.Text = "";
             // 
             // StartClient
             // 
@@ -207,7 +204,8 @@
             this.clientport.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.clientport.Size = new System.Drawing.Size(227, 32);
             this.clientport.TabIndex = 3;
-            this.clientport.Text = "23";
+            this.clientport.Text = "";
+            this.clientport.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ConnectToServer_Return);
             // 
             // ChatPanel
             // 
@@ -237,9 +235,9 @@
             // 
             this.SendEncrypted.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.SendEncrypted.Image = ((System.Drawing.Image)(resources.GetObject("SendEncrypted.Image")));
-            this.SendEncrypted.Location = new System.Drawing.Point(681, 407);
+            this.SendEncrypted.Location = new System.Drawing.Point(681, 404);
             this.SendEncrypted.Name = "SendEncrypted";
-            this.SendEncrypted.Size = new System.Drawing.Size(190, 49);
+            this.SendEncrypted.Size = new System.Drawing.Size(190, 52);
             this.SendEncrypted.TabIndex = 8;
             this.SendEncrypted.Text = "Send Encrypted";
             this.SendEncrypted.UseVisualStyleBackColor = true;
@@ -250,9 +248,9 @@
             this.TypeBox.AcceptsTab = true;
             this.TypeBox.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.TypeBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TypeBox.Location = new System.Drawing.Point(3, 402);
+            this.TypeBox.Location = new System.Drawing.Point(3, 395);
             this.TypeBox.Name = "TypeBox";
-            this.TypeBox.Size = new System.Drawing.Size(672, 118);
+            this.TypeBox.Size = new System.Drawing.Size(672, 125);
             this.TypeBox.TabIndex = 6;
             this.TypeBox.Text = "";
             this.TypeBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.EnterPressedOnTypeBox);
@@ -272,46 +270,26 @@
             // ChatHistory
             // 
             this.ChatHistory.BackColor = System.Drawing.SystemColors.InactiveCaption;
-            this.ChatHistory.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ChatHistory.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
+            this.ChatHistory.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ChatHistory.FormattingEnabled = true;
-            this.ChatHistory.ItemHeight = 22;
+            this.ChatHistory.ItemHeight = 29;
             this.ChatHistory.Location = new System.Drawing.Point(3, 40);
             this.ChatHistory.Name = "ChatHistory";
-            this.ChatHistory.Size = new System.Drawing.Size(868, 378);
+            this.ChatHistory.Size = new System.Drawing.Size(868, 349);
             this.ChatHistory.TabIndex = 3;
-            // 
-            // WaitingPanel
-            // 
-            this.WaitingPanel.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("WaitingPanel.BackgroundImage")));
-            this.WaitingPanel.Controls.Add(this.label4);
-            this.WaitingPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.WaitingPanel.Location = new System.Drawing.Point(0, 0);
-            this.WaitingPanel.Name = "WaitingPanel";
-            this.WaitingPanel.Size = new System.Drawing.Size(874, 523);
-            this.WaitingPanel.TabIndex = 3;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.BackColor = System.Drawing.SystemColors.ButtonShadow;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Image = ((System.Drawing.Image)(resources.GetObject("label4.Image")));
-            this.label4.Location = new System.Drawing.Point(205, 221);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(476, 46);
-            this.label4.TabIndex = 1;
-            this.label4.Text = "Waiting for connection...";
+            this.ChatHistory.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lst_DrawItem);
+            this.ChatHistory.MeasureItem += new System.Windows.Forms.MeasureItemEventHandler(this.lst_MeasureItem);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(874, 523);
+            this.Controls.Add(this.ServerOrClient);
             this.Controls.Add(this.ChatPanel);
             this.Controls.Add(this.StartClientPanel);
-            this.Controls.Add(this.WaitingPanel);
             this.Controls.Add(this.StartServerPanel);
-            this.Controls.Add(this.ServerOrClient);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ServerOrClient.ResumeLayout(false);
@@ -320,8 +298,6 @@
             this.StartClientPanel.ResumeLayout(false);
             this.StartClientPanel.PerformLayout();
             this.ChatPanel.ResumeLayout(false);
-            this.WaitingPanel.ResumeLayout(false);
-            this.WaitingPanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -347,8 +323,6 @@
         private System.Windows.Forms.Button SendNormal;
         private System.Windows.Forms.ListBox ChatHistory;
         private System.Windows.Forms.RichTextBox ConnectionInfo;
-        private System.Windows.Forms.Panel WaitingPanel;
-        internal System.Windows.Forms.Label label4;
     }
 }
 

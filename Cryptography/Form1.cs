@@ -32,12 +32,14 @@ namespace Cryptography
         private void RunServer_Click(object sender, EventArgs e)
         {
             StartServerPanel.BringToFront();
+            ServerPort.Focus();
         }
 
         // go to start client page
         private void RunClient_Click(object sender, EventArgs e)
         {
             StartClientPanel.BringToFront();
+            ipbox.Focus();
         }
 
         // start the server
@@ -59,20 +61,28 @@ namespace Cryptography
                 Int32 port = Int32.Parse(portString);
                 IPAddress ip = IPAddress.Parse("127.0.0.1");
 
-                server = new TcpListener(ip, port);
+                try
+                {
+                    server = new TcpListener(ip, port);
 
-                // start server
-                server.Start();
+                    // start server
+                    server.Start();
 
-                // bring chat panel to front
-                ChatPanel.BringToFront();
-                TypeBox.Focus();
-                ConnectionInfo.Text = "IP: " + GetLocalIPAddress() + "   Port: " + port;
+                    // bring chat panel to front
+                    ChatPanel.BringToFront();
+                    TypeBox.Focus();
+                    ConnectionInfo.Text = "IP: " + GetLocalIPAddress() + "   Port: " + port;
 
-                ThreadPool.QueueUserWorkItem(HandleClient);
-                    
-
+                    ThreadPool.QueueUserWorkItem(HandleClient);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString());
+                }
             }
+            else
+                MessageBox.Show("Port cannot be alphabet, special character or negative number." +
+                    "Please try again");
         }
 
         private void HandleClient(object o)
@@ -90,28 +100,24 @@ namespace Cryptography
 
                 while (true)
                 {
+                    string SignalDecrypt = "";
                     msg = sr.ReadLine();
-                    
+
                     if (msg.Contains(key))
                     {
                         encrypted = msg.Replace(key, string.Empty);
-                        ChatHistory.Items.Add("Client: " + encrypted);
+                        ChatHistory.Items.Add("Client: |EC| " + encrypted);
                         msg = b.Decrypt_CBC(encrypted);
+                        SignalDecrypt = "|DC| ";
                     }
 
 
-                    ChatHistory.Items.Add("Client: " + msg);
-
-                    if (msg.Contains("shutdown"))
-                    {
-                        MessageBox.Show("Breaking out now");
-                        break;
-                    }
+                    ChatHistory.Items.Add("Client: " + SignalDecrypt + msg);
+                    ScrollToBottom();
                 }
             }
-            catch(Exception ex)
+            catch (Exception)
             {
-                //MessageBox.Show(ex.Message.ToString());
                 client.Close();
                 server.Stop();
                 Application.Exit();
@@ -121,29 +127,40 @@ namespace Cryptography
         // start the server
         private void EnterPressedServerPort(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.Enter)
+            if (e.KeyCode == Keys.Enter)
                 StartServer_Click(sender, e);
 
         }
 
-      
+
 
         private void SendNormal_Click(object sender, EventArgs e)
         {
             string msg = TypeBox.Text;
+            if (msg == "")
+                return;
+
             TypeBox.Clear();
             StreamWriter sw;
 
-            if (ServerItIs)
-                sw = new StreamWriter(client.GetStream());
-            else
-                sw = new StreamWriter(RunTheClient.GetStream());
+            try
+            {
+                if (ServerItIs)
+                    sw = new StreamWriter(client.GetStream());
+                else
+                    sw = new StreamWriter(RunTheClient.GetStream());
 
-            sw.AutoFlush = true;
+                sw.AutoFlush = true;
 
-            sw.WriteLine(msg);
-            ChatHistory.Items.Add("Me: " + msg);
-            TypeBox.Focus();
+                sw.WriteLine(msg);
+                ChatHistory.Items.Add("Me: " + msg);
+                TypeBox.Focus();
+                ScrollToBottom();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("No clients have connected yet... Try again later!", "Error 643");
+            }
         }
 
 
@@ -151,7 +168,7 @@ namespace Cryptography
         {
             bool valid = false;
             IPAddress ip;
-            int port = 0;            
+            int port = 0;
 
             if (IPAddress.TryParse(ipbox.Text, out ip) && int.TryParse(clientport.Text, out port))
             {
@@ -159,29 +176,31 @@ namespace Cryptography
                     valid = true;
             }
 
-            if(valid)
+            if (valid)
             {
                 RunTheClient = new TcpClient();
 
                 try
                 {
                     // connect to server
-                    RunTheClient.Connect(ip, port);              
+                    RunTheClient.Connect(ip, port);
 
                     if (RunTheClient.Connected)
                     {
-                       // MessageBox.Show("Bringing clint chat to front");
+                        // MessageBox.Show("Bringing clint chat to front");
                         ChatPanel.BringToFront();
                         ConnectionInfo.Text = "Connected to server " + ip.ToString() + " at port " + port;
                         TypeBox.Focus();
                         ThreadPool.QueueUserWorkItem(HandleServer);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message.ToString());
                 }
             }
+            else
+                MessageBox.Show("Invalid entry. Please try again.");
 
         }
 
@@ -197,26 +216,32 @@ namespace Cryptography
 
                 while (true)
                 {
+                    string SignalDecrypt = "";
                     msg = sr.ReadLine();
 
                     if (msg.Contains(key))
                     {
                         encrypted = msg.Replace(key, string.Empty);
-                        ChatHistory.Items.Add("Server: " + encrypted);
+                        ChatHistory.Items.Add("Server: |EC| " + encrypted);
                         msg = b.Decrypt_CBC(encrypted);
+                        SignalDecrypt = "|DC| ";
                     }
 
-                    if (msg.Contains("shutdown"))
-                        break;
-
-                      ChatHistory.Items.Add("Server: " + msg);                    
+                    ChatHistory.Items.Add("Server: " + SignalDecrypt + msg);
+                    ScrollToBottom();
                 }
             }
-            catch(Exception ex)
+            catch (Exception)
             {
                 RunTheClient.Close();
                 Application.Exit();
             }
+        }
+
+        private void ScrollToBottom()
+        {
+            ChatHistory.SelectedIndex = ChatHistory.Items.Count - 1;
+            ChatHistory.SelectedIndex = -1;
         }
 
 
@@ -237,7 +262,7 @@ namespace Cryptography
         private void EnterPressedOnTypeBox(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return)
-            {            
+            {
                 e.Handled = true;
                 SendNormal_Click(sender, e);
             }
@@ -246,22 +271,54 @@ namespace Cryptography
         private void SendEncrypted_Click(object sender, EventArgs e)
         {
             string msg = TypeBox.Text;
+            if (msg == "")
+                return;
+
             TypeBox.Clear();
             StreamWriter sw;
             string key = "#=%913-#^";
 
             string encrypted = key + b.Encrypt_CBC(msg);
 
-            if (ServerItIs)
-                sw = new StreamWriter(client.GetStream());
-            else
-                sw = new StreamWriter(RunTheClient.GetStream());
+            try
+            {
+                if (ServerItIs)
+                    sw = new StreamWriter(client.GetStream());
+                else
+                    sw = new StreamWriter(RunTheClient.GetStream());
 
-            sw.AutoFlush = true;
+                sw.AutoFlush = true;
 
-            sw.WriteLine(encrypted);
-            ChatHistory.Items.Add("Me: " + msg);
-            TypeBox.Focus();
+                sw.WriteLine(encrypted);
+                ChatHistory.Items.Add("Me: " + msg);
+                TypeBox.Focus();
+                ScrollToBottom();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("No clients have connected yet... Try again later!", "Error 643");
+            }
+        }
+
+        private void lst_MeasureItem(object sender, MeasureItemEventArgs e)
+        {
+            e.ItemHeight = (int)e.Graphics.MeasureString(ChatHistory.Items[e.Index].ToString(), ChatHistory.Font, ChatHistory.Width).Height;
+        }
+
+        private void lst_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            e.DrawBackground();
+            e.DrawFocusRectangle();
+            e.Graphics.DrawString(ChatHistory.Items[e.Index].ToString(), e.Font, new SolidBrush(e.ForeColor), e.Bounds);
+        }
+
+        private void ConnectToServer_Return(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return)
+            {
+                e.Handled = true;
+                StartClient_Click(sender, e);
+            }
         }
     }
 }
