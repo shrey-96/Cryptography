@@ -227,6 +227,7 @@
             this.ConnectionInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ConnectionInfo.Location = new System.Drawing.Point(3, 3);
             this.ConnectionInfo.Name = "ConnectionInfo";
+            this.ConnectionInfo.ReadOnly = true;
             this.ConnectionInfo.Size = new System.Drawing.Size(698, 31);
             this.ConnectionInfo.TabIndex = 9;
             this.ConnectionInfo.Text = "";
