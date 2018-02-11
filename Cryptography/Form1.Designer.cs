@@ -243,6 +243,7 @@
             this.SendEncrypted.TabIndex = 8;
             this.SendEncrypted.Text = "Send Encrypted";
             this.SendEncrypted.UseVisualStyleBackColor = true;
+            this.SendEncrypted.Click += new System.EventHandler(this.SendEncrypted_Click);
             // 
             // TypeBox
             // 
@@ -271,12 +272,12 @@
             // ChatHistory
             // 
             this.ChatHistory.BackColor = System.Drawing.SystemColors.InactiveCaption;
-            this.ChatHistory.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ChatHistory.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ChatHistory.FormattingEnabled = true;
-            this.ChatHistory.ItemHeight = 29;
+            this.ChatHistory.ItemHeight = 22;
             this.ChatHistory.Location = new System.Drawing.Point(3, 40);
             this.ChatHistory.Name = "ChatHistory";
-            this.ChatHistory.Size = new System.Drawing.Size(868, 381);
+            this.ChatHistory.Size = new System.Drawing.Size(868, 378);
             this.ChatHistory.TabIndex = 3;
             // 
             // WaitingPanel
@@ -306,11 +307,11 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(874, 523);
-            this.Controls.Add(this.ServerOrClient);
             this.Controls.Add(this.ChatPanel);
             this.Controls.Add(this.StartClientPanel);
             this.Controls.Add(this.WaitingPanel);
             this.Controls.Add(this.StartServerPanel);
+            this.Controls.Add(this.ServerOrClient);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ServerOrClient.ResumeLayout(false);

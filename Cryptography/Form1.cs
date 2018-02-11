@@ -21,6 +21,7 @@ namespace Cryptography
         static TcpClient RunTheClient;
         static TcpListener server;
         static bool ServerItIs = false;
+        BlowFish b = new BlowFish("04B915BA43FEB5B6");
 
         public Form1()
         {
@@ -84,10 +85,21 @@ namespace Cryptography
                 StreamReader sr = new StreamReader(client.GetStream());
 
                 string msg = "";
+                string key = "#=%913-#^";
+                string encrypted = "";
 
                 while (true)
                 {
                     msg = sr.ReadLine();
+                    
+                    if (msg.Contains(key))
+                    {
+                        encrypted = msg.Replace(key, string.Empty);
+                        ChatHistory.Items.Add("Client: " + encrypted);
+                        msg = b.Decrypt_CBC(encrypted);
+                    }
+
+
                     ChatHistory.Items.Add("Client: " + msg);
 
                     if (msg.Contains("shutdown"))
@@ -176,6 +188,8 @@ namespace Cryptography
         public void HandleServer(object o)
         {
             string msg = "";
+            string key = "#=%913-#^";
+            string encrypted = "";
 
             try
             {
@@ -184,6 +198,14 @@ namespace Cryptography
                 while (true)
                 {
                     msg = sr.ReadLine();
+
+                    if (msg.Contains(key))
+                    {
+                        encrypted = msg.Replace(key, string.Empty);
+                        ChatHistory.Items.Add("Server: " + encrypted);
+                        msg = b.Decrypt_CBC(encrypted);
+                    }
+
                     if (msg.Contains("shutdown"))
                         break;
 
@@ -219,6 +241,27 @@ namespace Cryptography
                 e.Handled = true;
                 SendNormal_Click(sender, e);
             }
+        }
+
+        private void SendEncrypted_Click(object sender, EventArgs e)
+        {
+            string msg = TypeBox.Text;
+            TypeBox.Clear();
+            StreamWriter sw;
+            string key = "#=%913-#^";
+
+            string encrypted = key + b.Encrypt_CBC(msg);
+
+            if (ServerItIs)
+                sw = new StreamWriter(client.GetStream());
+            else
+                sw = new StreamWriter(RunTheClient.GetStream());
+
+            sw.AutoFlush = true;
+
+            sw.WriteLine(encrypted);
+            ChatHistory.Items.Add("Me: " + msg);
+            TypeBox.Focus();
         }
     }
 }
