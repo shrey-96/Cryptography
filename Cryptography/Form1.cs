@@ -21,7 +21,6 @@ namespace Cryptography
         static TcpClient RunTheClient;
         static TcpListener server;
         static bool ServerItIs = false;
-        private static object Dispatcher;
 
         public Form1()
         {
@@ -66,6 +65,7 @@ namespace Cryptography
 
                 // bring chat panel to front
                 ChatPanel.BringToFront();
+                TypeBox.Focus();
                 ConnectionInfo.Text = "IP: " + GetLocalIPAddress() + "   Port: " + port;
 
                 ThreadPool.QueueUserWorkItem(HandleClient);
@@ -78,20 +78,31 @@ namespace Cryptography
         {
             // wait for client to join
             client = server.AcceptTcpClient();
-            StreamReader sr = new StreamReader(client.GetStream());
 
-            string msg = "";
-           
-            while (true)
+            try
             {
-                msg = sr.ReadLine();
-                ChatHistory.Items.Add("Client: " + msg);
+                StreamReader sr = new StreamReader(client.GetStream());
 
-                if (msg.Contains("shutdown"))
+                string msg = "";
+
+                while (true)
                 {
-                    MessageBox.Show("Breaking out now");
-                    break;
+                    msg = sr.ReadLine();
+                    ChatHistory.Items.Add("Client: " + msg);
+
+                    if (msg.Contains("shutdown"))
+                    {
+                        MessageBox.Show("Breaking out now");
+                        break;
+                    }
                 }
+            }
+            catch(Exception ex)
+            {
+                //MessageBox.Show(ex.Message.ToString());
+                client.Close();
+                server.Stop();
+                Application.Exit();
             }
         }
 
@@ -120,6 +131,7 @@ namespace Cryptography
 
             sw.WriteLine(msg);
             ChatHistory.Items.Add("Me: " + msg);
+            TypeBox.Focus();
         }
 
 
@@ -148,6 +160,8 @@ namespace Cryptography
                     {
                        // MessageBox.Show("Bringing clint chat to front");
                         ChatPanel.BringToFront();
+                        ConnectionInfo.Text = "Connected to server " + ip.ToString() + " at port " + port;
+                        TypeBox.Focus();
                         ThreadPool.QueueUserWorkItem(HandleServer);
                     }
                 }
@@ -173,13 +187,13 @@ namespace Cryptography
                     if (msg.Contains("shutdown"))
                         break;
 
-                      ChatHistory.Items.Add("Server: " + msg);
-                    //MessageBox.Show("Server: " + msg);
+                      ChatHistory.Items.Add("Server: " + msg);                    
                 }
             }
             catch(Exception ex)
             {
-                MessageBox.Show(ex.Message.ToString());
+                RunTheClient.Close();
+                Application.Exit();
             }
         }
 
@@ -196,6 +210,15 @@ namespace Cryptography
                 }
             }
             throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
+
+        private void EnterPressedOnTypeBox(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return)
+            {            
+                e.Handled = true;
+                SendNormal_Click(sender, e);
+            }
         }
     }
 }

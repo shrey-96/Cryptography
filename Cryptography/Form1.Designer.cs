@@ -254,6 +254,7 @@
             this.TypeBox.Size = new System.Drawing.Size(672, 118);
             this.TypeBox.TabIndex = 6;
             this.TypeBox.Text = "";
+            this.TypeBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.EnterPressedOnTypeBox);
             // 
             // SendNormal
             // 
